@@ -1,9 +1,13 @@
 #include <iostream>
 #include <stack>
+#include <vector>
 
 using namespace std;
 
-int fac(int n)
+int arr[5];
+int *arr1 = new int[5];
+
+int fac (int n)
 {
     if (n == 1)
     {
@@ -66,9 +70,58 @@ int forLoop (int n)
     return res;
 }
 
+struct Node
+{
+    int val;
+    Node *next;
+
+    Node (int n)
+    {
+        val = n;
+    }
+};
+
+Node *test ()
+{
+    Node *n0 = new Node(1);
+    Node *n1 = new Node(2);
+    Node *n2 = new Node(3);
+    Node *n3 = new Node(4);
+    Node *n4 = new Node(5);
+    Node *head = n0;
+    n0->next = n1;
+    n1->next = n2;
+    n2->next = n3;
+    n3->next = n4;
+    n4->next = nullptr;
+    return n0;
+}
+
+void insert (Node *n0, int n)
+{
+    Node *Temp = new Node(n);
+    Temp->next = n0->next;
+    n0->next = Temp;
+}
+
+void del (Node *n0, int n)
+{
+    Node *p = n0;
+    for (int i = 0; i < n; ++i)
+    {
+        p = n0;
+        n0 = n0->next;
+    }
+    p->next = n0->next;
+    delete n0;
+    n0 = nullptr;
+}
+
+vector<int> num1;
+vector<int> num2 = {1, 2, 3, 4, 5};
 
 int main ()
 {
-    cout << fac(5) << endl;
+
     return 0;
 }
