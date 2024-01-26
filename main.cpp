@@ -120,6 +120,19 @@ void del (Node *n0, int n)
 vector<int> num1;
 vector<int> num2 = {1, 2, 3, 4, 5};
 
+class ListNode
+{
+public:
+    int val;
+    ListNode *next;
+
+    ListNode (int val)
+    {
+        this->val = val;
+        this->next = nullptr;
+    }
+};
+
 class LinkedListStack
 {
 private:
@@ -127,10 +140,95 @@ private:
     int stkSize;
 
 public:
-    LinkedListStack()
+    LinkedListStack ()
     {
         stackTop = nullptr;
         stkSize = 0;
+    }
+
+    ~LinkedListStack ()
+    {
+        ;
+    }
+
+    int getSize ()
+    {
+        return stkSize;
+    }
+
+    bool isEmpty ()
+    {
+        return stkSize == 0;
+    }
+
+    void push (int val)
+    {
+        ListNode *node = new ListNode(val);
+        node->next = stackTop;
+        this->stackTop = node;
+        stkSize++;
+    }
+
+    int pop ()
+    {
+        int number = this->getTop();
+        ListNode *temp = stackTop;
+        stackTop = temp->next;
+        delete temp;
+        temp = nullptr;
+        stkSize--;
+        return number;
+    }
+
+    int getTop ()
+    {
+        return this->stackTop->val;
+    }
+
+    vector<int> toVector ()
+    {
+        ListNode *temp = this->stackTop;
+        vector<int> vec;
+        while (temp != nullptr)
+        {
+            vec.push_back(temp->val);
+            temp = temp->next;
+        }
+        return vec;
+    }
+};
+
+class arrayStack
+{
+private:
+    vector<int> arr;
+
+public:
+    int getSize ()
+    {
+        return arr.size();
+    }
+
+    bool isEmpty ()
+    {
+        return arr.empty();
+    }
+
+    void push (int val)
+    {
+        arr.push_back(val);
+    }
+
+    int pop ()
+    {
+        int num = this->getTop();
+        arr.pop_back();
+        return num;
+    }
+
+    int getTop ()
+    {
+        return arr[arr.size() - 1];
     }
 };
 
