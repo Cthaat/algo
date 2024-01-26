@@ -120,6 +120,20 @@ void del (Node *n0, int n)
 vector<int> num1;
 vector<int> num2 = {1, 2, 3, 4, 5};
 
+class LinkedListStack
+{
+private:
+    ListNode *stackTop{};
+    int stkSize;
+
+public:
+    LinkedListStack()
+    {
+        stackTop = nullptr;
+        stkSize = 0;
+    }
+};
+
 int main ()
 {
 
