@@ -232,6 +232,72 @@ public:
     }
 };
 
+class doubleListNode
+{
+public:
+    int val;
+    doubleListNode *prev;
+    doubleListNode *next;
+
+    doubleListNode (int val)
+    {
+        this->val = val;
+        this->prev = nullptr;
+        this->next = nullptr;
+    }
+};
+
+class linkListDeque
+{
+private:
+    doubleListNode *head;
+    doubleListNode *tail;
+    int size;
+
+public:
+    linkListDeque ()
+    {
+        head = nullptr;
+        tail = nullptr;
+        size = 0;
+    }
+
+    ~linkListDeque ()
+    {
+        doubleListNode *temp = this->head;
+        while (temp != nullptr)
+        {
+            doubleListNode *delNode = temp->next;
+            delete temp;
+            temp = delNode;
+        }
+    }
+
+    int getSize ()
+    {
+        return this->size;
+    }
+
+    bool isEmpty ()
+    {
+        return this->getSize() == 0;
+    }
+
+    void pushFront (int val)
+    {
+        doubleListNode *node = new doubleListNode(val);
+        if (this->head == nullptr)
+        {
+            this->head = node;
+            this->tail = node;
+        } else
+        {
+            head->next = node->next;
+            head = node;
+        }
+    }
+};
+
 int main ()
 {
 
