@@ -412,15 +412,131 @@ public:
     }
 };
 
+class HashMapChaing
+{
+private:
+    int size;
+    int capacity;
+    double loadFactor;
+    int extendRating;
+    vector<vector<Pair *>> buckets;
+
+public:
+    HashMapChaing ()
+    {
+        this->size = 0;
+        this->capacity = 4;
+        this->loadFactor = 0.75;
+        this->extendRating = 2;
+        this->buckets.resize(this->capacity);
+    }
+
+    ~HashMapChaing ()
+    {
+        for (auto &i: this->buckets)
+        {
+            for (auto &j: i)
+            {
+                delete j;
+                j = nullptr;
+            }
+        }
+        this->buckets.clear();
+    }
+
+    int hashFunction (int key)
+    {
+        return key % this->capacity;
+    }
+
+    double getLoadFactor ()
+    {
+        return (double) this->size / (double) this->capacity;
+    }
+
+    int getValue (int key)
+    {
+        int index = this->hashFunction(key);
+        for (auto &i: this->buckets[index])
+        {
+            if (i->key == key)
+            {
+                return i->value;
+            }
+        }
+        return -1;
+    }
+
+    void extend ()
+    {
+        vector<vector<Pair *>> tempBuckets = this->buckets;
+        capacity *= this->extendRating;
+        buckets.clear();
+        this->buckets.resize(this->capacity);
+        this->size = 0;
+        for (auto &i: tempBuckets)
+        {
+            for (auto &j: i)
+            {
+                put(j->key, j->value);
+                delete j;
+                j = nullptr;
+            }
+        }
+    }
+
+    void put (int key, int value)
+    {
+        if (this->getLoadFactor() >= this->loadFactor)
+        {
+            this->extend();
+        }
+        int index = this->hashFunction(key);
+        for (auto &i: this->buckets[index])
+        {
+            if (i->key == key)
+            {
+                i->value = value;
+                return;
+            }
+        }
+        this->buckets[index].push_back(new Pair(key, value));
+        this->size++;
+    }
+
+    int remove (int key)
+    {
+        int index = this->hashFunction(key);
+        for (auto i = this->buckets[index].begin(); i != this->buckets[index].end(); i++)
+        {
+            if (((*i)->key = key))
+            {
+                this->buckets[index].erase(i);
+                this->size--;
+                return (*i)->value;
+            }
+        }
+        return -1;
+    }
+    void printHash()
+    {
+        for(auto &i : this->buckets)
+        {
+            for(auto &j: i)
+            {
+                cout << j->key << " " << j->value << endl;
+            }
+        }
+    }
+};
+
 int main ()
 {
-    ArrayHashMap hashMap = ArrayHashMap();
-    hashMap.put(1, 10);
-    hashMap.put(2, 20);
-    hashMap.put(3, 30);
-    hashMap.put(4, 40);
-    hashMap.put(5, 50);
-    hashMap.put(600, 60);
-    hashMap.printHashArray();
+    HashMapChaing hashmap = HashMapChaing();
+    hashmap.put(1, 1);
+    hashmap.put(2, 2);
+    hashmap.put(3, 3);
+    hashmap.put(4, 1);
+    hashmap.printHash();
     return 0;
 }
