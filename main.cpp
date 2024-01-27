@@ -298,8 +298,129 @@ public:
     }
 };
 
+class Pair
+{
+public:
+    int key;
+    int value;
+
+    Pair (int key, int value)
+    {
+        this->key = key;
+        this->value = value;
+    }
+};
+
+class ArrayHashMap
+{
+private:
+    vector<Pair *> hashArray;
+public:
+    ArrayHashMap ()
+    {
+        this->hashArray.resize(100);
+    }
+
+    ~ArrayHashMap ()
+    {
+        for (auto &i: hashArray)
+        {
+            delete i;
+        }
+        this->hashArray.clear();
+    }
+
+    int hashFunc (int key)
+    {
+        int index = key % 100;
+        return index;
+    }
+
+    int get (int key)
+    {
+        int index = this->hashFunc(key);
+        Pair *pair = this->hashArray[index];
+        if (pair == nullptr)
+        {
+            return -1;
+        }
+        return pair->value;
+    }
+
+    void put (int key, int value)
+    {
+        int index = this->hashFunc(key);
+        Pair *pair = new Pair(key, value);
+        this->hashArray[index] = pair;
+    }
+
+    int remove (int key)
+    {
+        return this->hashArray[this->hashFunc(key)]->value;
+        delete this->hashArray[this->hashFunc(key)];
+        this->hashArray[this->hashFunc(key)] = nullptr;
+    }
+
+    vector<Pair *> getHashArray ()
+    {
+        vector<Pair *> tempArr;
+        for (auto &i: this->hashArray)
+        {
+            if (i != nullptr)
+            {
+                tempArr.push_back(i);
+            }
+        }
+        return tempArr;
+    }
+
+    vector<int> getKey ()
+    {
+        vector<int> tempKey;
+        for (auto &i: this->hashArray)
+        {
+            if (i != nullptr)
+            {
+                tempKey.push_back(i->key);
+            }
+        }
+        return tempKey;
+    }
+
+    vector<int> getValue ()
+    {
+        vector<int> tempValue;
+        for (auto &i: this->hashArray)
+        {
+            if (i != nullptr)
+            {
+                tempValue.push_back(i->value);
+            }
+        }
+        return tempValue;
+    }
+
+    void printHashArray ()
+    {
+        for (auto &i: this->hashArray)
+        {
+            if (i != nullptr)
+            {
+                cout << "key:" << i->key << "value:" << i->value << endl;
+            }
+        }
+    }
+};
+
 int main ()
 {
-
+    ArrayHashMap hashMap = ArrayHashMap();
+    hashMap.put(1, 10);
+    hashMap.put(2, 20);
+    hashMap.put(3, 30);
+    hashMap.put(4, 40);
+    hashMap.put(5, 50);
+    hashMap.put(600, 60);
+    hashMap.printHashArray();
     return 0;
 }
