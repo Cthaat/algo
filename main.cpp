@@ -518,11 +518,12 @@ public:
         }
         return -1;
     }
-    void printHash()
+
+    void printHash ()
     {
-        for(auto &i : this->buckets)
+        for (auto &i: this->buckets)
         {
-            for(auto &j: i)
+            for (auto &j: i)
             {
                 cout << j->key << " " << j->value << endl;
             }
@@ -530,13 +531,73 @@ public:
     }
 };
 
+class hashMapOpen
+{
+private:
+    int size;
+    int capacity = 4;
+    const double loadFactor = 0.75;
+    const int extendRation = 2;
+    vector<Pair *> buckets;
+    Pair *TOMBSTONE = new Pair(-1, -1);
+
+public:
+    hashMapOpen ()
+    {
+        this->size = 0;
+        this->buckets.resize(this->capacity);
+    }
+
+    ~hashMapOpen ()
+    {
+        for (auto &i: this->buckets)
+        {
+            if (i != TOMBSTONE && i != nullptr)
+            {
+                delete i;
+            }
+        }
+        delete this->TOMBSTONE;
+    }
+
+    int hashFunction (int key)
+    {
+        return key % this->capacity;
+    }
+
+    double getLoadFactor ()
+    {
+        return (double) this->size / (double) this->capacity;
+    }
+
+    int findBucket (int key)
+    {
+        int index = this->hashFunction(key);
+        int firstTombstone = -1;
+        while (this->buckets[index] != nullptr)
+        {
+            if (buckets[index]->key == key)
+            {
+                if (firstTombstone != -1)
+                {
+                    this->buckets[firstTombstone] = this->buckets[index];
+                    this->buckets[index] = TOMBSTONE;
+                    return firstTombstone;
+                }
+                return index;
+            }
+            if (firstTombstone == -1 && this->buckets[index] == this->TOMBSTONE)
+            {
+                firstTombstone = index;
+            }
+            index = (index + 1) % this->capacity;
+        }
+        return firstTombstone == -1 ? index : firstTombstone;
+    }
+};
+
 int main ()
 {
-    HashMapChaing hashmap = HashMapChaing();
-    hashmap.put(1, 1);
-    hashmap.put(2, 2);
-    hashmap.put(3, 3);
-    hashmap.put(4, 1);
-    hashmap.printHash();
+
     return 0;
 }
