@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stack>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -594,10 +595,379 @@ public:
         }
         return firstTombstone == -1 ? index : firstTombstone;
     }
+
+    void remove (int key)
+    {
+        int index = this->findBucket(key);
+        if (index != -1)
+        {
+            this->buckets[index] = this->TOMBSTONE;
+            this->size--;
+        }
+    }
+
+    void extend ()
+    {
+        vector<Pair *> oldBuckets = this->buckets;
+        this->capacity *= this->extendRation;
+        this->buckets.resize(this->capacity);
+        for (auto &i: oldBuckets)
+        {
+            this->put(i->key, i->value);
+        }
+    }
+
+    void put (int key, int value)
+    {
+        if (this->getLoadFactor() > this->loadFactor)
+        {
+            this->extend();
+        }
+        int index = this->findBucket(key);
+        if (this->buckets[index] != nullptr && this->buckets[index] != this->TOMBSTONE)
+        {
+            if (this->buckets[index]->key == key)
+            {
+                this->buckets[index]->value = value;
+                return;
+            }
+        }
+        this->buckets[index] = new Pair(key, value);
+        this->size++;
+    }
+
+    void printHash ()
+    {
+        for (auto &i: this->buckets)
+        {
+            if (i != nullptr && i != this->TOMBSTONE)
+            {
+                cout << "Key: " << i->key << " Value: " << i->value << endl;
+            }
+        }
+    }
+};
+
+struct treeNode
+{
+    int value;
+    treeNode *left;
+    treeNode *right;
+
+    treeNode (int value) : value(value), left(nullptr), right(nullptr)
+    {}
+};
+
+class treeTest1
+{
+private:
+    treeNode *n1 = new treeNode(1);
+    treeNode *n2 = new treeNode(2);
+    treeNode *n3 = new treeNode(3);
+    treeNode *n4 = new treeNode(4);
+    treeNode *n5 = new treeNode(5);
+public:
+    treeTest1 ()
+    {
+        n1->left = n2;
+        n1->right = n3;
+        n2->left = n4;
+        n2->right = n5;
+    }
+
+    void put (int value)
+    {
+        treeNode *current = new treeNode(value);
+        current->left = n1->left;
+        n1->left = current;
+    }
+
+    vector<int> levelOrder ()
+    {
+        queue<treeNode *> q;
+        q.push(n1);
+        vector<int> result;
+        while (!q.empty())
+        {
+            treeNode *node = q.front();
+            q.pop();
+            result.push_back(node->value);
+            if (node->left != nullptr)
+            {
+                q.push(node->left);
+            }
+            if (node->right != nullptr)
+            {
+                q.push(node->right);
+            }
+        }
+        return result;
+    }
+
+    treeNode *getRoot ()
+    {
+        return this->n1;
+    }
+};
+
+class order
+{
+private:
+    vector<int> vec;
+public:
+    vector<int> getVec ()
+    {
+        return this->vec;
+    }
+
+    void perOrder (treeNode *node)
+    {
+        if (node == nullptr)
+        {
+            return;
+        }
+        vec.push_back(node->value);
+        perOrder(node->left);
+        perOrder(node->right);
+    }
+
+    void inOrder (treeNode *node)
+    {
+        if (node == nullptr)
+        {
+            return;
+        }
+        inOrder(node->left);
+        vec.push_back(node->value);
+        inOrder(node->right);
+    }
+
+    void postOrder (treeNode *node)
+    {
+        if (node == nullptr)
+        {
+            return;
+        }
+        postOrder(node->left);
+        postOrder(node->right);
+        vec.push_back(node->value);
+    }
+};
+
+class arrayBinaryTree
+{
+private:
+    vector<int> tree;
+
+    void dfs (int i, string order, vector<int> &res)
+    {
+        if (val(i) == INT_MAX)
+        {
+            return;
+        }
+        if (order == "pre")
+        {
+            res.push_back(val(i));
+        }
+        dfs(left(i), order, res);
+        if (order == "in")
+        {
+            res.push_back(val(i));
+        }
+        dfs(right(i), order, res);
+        if (order == "post")
+        {
+            res.push_back(val(i));
+        }
+    }
+
+public:
+    arrayBinaryTree (vector<int> tree)
+    {
+        this->tree = tree;
+    }
+
+    int getSize ()
+    {
+        return tree.size();
+    }
+
+    int val (int i)
+    {
+        if (i < 0 || i >= getSize())
+        {
+            return INT_MAX;
+        }
+        return tree[i];
+    }
+
+    int left (int i)
+    {
+        return 2 * i + 1;
+    }
+
+    int right (int i)
+    {
+        return 2 * i + 2;
+    }
+
+    int parent (int i)
+    {
+        return (i - 1) / 2;
+    }
+
+    vector<int> levelOrder ()
+    {
+        vector<int> res;
+        for (int i = 0; i < this->getSize(); ++i)
+        {
+            if (val(i) != INT_MAX)
+            {
+                res.push_back(val(i));
+            }
+        }
+        return res;
+    }
+
+    vector<int> preOrder ()
+    {
+        vector<int> res;
+        dfs(0, "pre", res);
+        return res;
+    }
+
+    vector<int> inOrder ()
+    {
+        vector<int> res;
+        dfs(0, "in", res);
+        return res;
+    }
+
+    vector<int> postOrder ()
+    {
+        vector<int> res;
+        dfs(0, "post", res);
+        return res;
+    }
+};
+
+class BinarySearchTree
+{
+private:
+    treeNode *root;
+public:
+    treeNode *search (int number)
+    {
+        treeNode *node = this->root;
+        while (node != nullptr)
+        {
+            if (node->value == number)
+            {
+                return node;
+            }
+            if (node->value > number)
+            {
+                node = node->left;
+            }
+            if (node->value < number)
+            {
+                node = node->right;
+            }
+        }
+        return nullptr;
+    }
+
+    void insert (int number)
+    {
+        if (this->search(number) != nullptr)
+        {
+            return;
+        }
+        treeNode *node = new treeNode(number);
+        treeNode *parent = nullptr;
+        treeNode *current = this->root;
+        if (this->root == nullptr)
+        {
+            root = node;
+            return;
+        }
+        while (current != nullptr)
+        {
+            parent = current;
+            if (current->value > number)
+            {
+                current = current->left;
+            } else
+            {
+                current = current->right;
+            }
+        }
+        if (parent->value > number)
+        {
+            parent->left = node;
+        } else
+        {
+            parent->right = node;
+        }
+    }
+
+    void remove (int number)
+    {
+        if (this->search(number) == nullptr)
+        {
+            return;
+        }
+        treeNode *current = this->root;
+        treeNode *parent = nullptr;
+        while (current != nullptr)
+        {
+            if (current->value == number)
+            {
+                break;
+            }
+            parent = current;
+            if (current->value > number)
+            {
+                current = current->left;
+            } else
+            {
+                current = current->right;
+            }
+        }
+        if (current->left == nullptr && current->right == nullptr)
+        {
+            treeNode *child = current->left == nullptr ? current->right : current->left;
+            if (parent == nullptr)
+            {
+                this->root = child;
+            } else
+            {
+                if (parent->left == current)
+                {
+                    parent->left = child;
+                } else
+                {
+                    parent->right = child;
+                }
+                delete current;
+                current = nullptr;
+            }
+        } else
+        {
+            treeNode *temp = current->right;
+            while (temp->left != nullptr)
+            {
+                temp = temp->left;
+            }
+            current->value = temp->value;
+            remove(temp->value);
+        }
+    }
 };
 
 int main ()
 {
+    vector<int> vec = {4, 2, 6, 1, 3, 5, 7};
 
     return 0;
 }
