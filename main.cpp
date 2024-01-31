@@ -989,6 +989,16 @@ public:
     }
 };
 
+struct AVLTreeNode
+{
+    int value{};
+    AVLTreeNode *left{};
+    AVLTreeNode *right{};
+    int height{};
+    AVLTreeNode () = default;
+    explicit AVLTreeNode (int value) : value(value) {};
+};
+
 int main ()
 {
 
