@@ -855,7 +855,17 @@ class BinarySearchTree
 {
 private:
     treeNode *root;
+    vector<int> vec;
 public:
+    treeNode* getRoot ()
+    {
+        return root;
+    }
+    vector<int> getVec ()
+    {
+        return vec;
+    }
+
     treeNode *search (int number)
     {
         treeNode *node = this->root;
@@ -868,10 +878,12 @@ public:
             if (node->value > number)
             {
                 node = node->left;
+                continue;
             }
             if (node->value < number)
             {
                 node = node->right;
+                continue;
             }
         }
         return nullptr;
@@ -959,15 +971,26 @@ public:
             {
                 temp = temp->left;
             }
-            current->value = temp->value;
+            int tem = temp->value;
             remove(temp->value);
+            current->value = tem;
         }
+    }
+
+    void inOrder (treeNode *node)
+    {
+        if (node == nullptr)
+        {
+            return;
+        }
+        inOrder(node->left);
+        vec.push_back(node->value);
+        inOrder(node->right);
     }
 };
 
 int main ()
 {
-    vector<int> vec = {4, 2, 6, 1, 3, 5, 7};
 
     return 0;
 }
