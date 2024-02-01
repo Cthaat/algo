@@ -857,10 +857,11 @@ private:
     treeNode *root;
     vector<int> vec;
 public:
-    treeNode* getRoot ()
+    treeNode *getRoot ()
     {
         return root;
     }
+
     vector<int> getVec ()
     {
         return vec;
@@ -995,12 +996,411 @@ struct AVLTreeNode
     AVLTreeNode *left{};
     AVLTreeNode *right{};
     int height{};
+
     AVLTreeNode () = default;
-    explicit AVLTreeNode (int value) : value(value) {};
+
+    explicit AVLTreeNode (int value) : value(value)
+    {};
+};
+
+class AVLTree
+{
+private:
+    AVLTreeNode *root{};
+    vector<AVLTreeNode *> vec{};
+
+    int height (AVLTreeNode *node)
+    {
+        return node == nullptr ? -1 : node->height;
+    }
+
+    void updateHeight (AVLTreeNode *node)
+    {
+        node->height = max(height(node->left), height(node->right)) + 1;
+    }
+
+    int balanceFactor (AVLTreeNode *node)
+    {
+        if (node == nullptr)
+        {
+            return 0;
+        }
+        return height(node->left) - height(node->right);
+    }
+
+    AVLTreeNode *rightRotate (AVLTreeNode *node)
+    {
+        AVLTreeNode *child = node->left;
+        AVLTreeNode *grandChild = child->right;
+        child->right = node;
+        node->left = grandChild;
+        updateHeight(node);
+        updateHeight(child);
+        return child;
+    }
+
+    AVLTreeNode *leftRotate (AVLTreeNode *node)
+    {
+        AVLTreeNode *child = node->right;
+        AVLTreeNode *grandChild = child->left;
+        child->left = node;
+        node->right = grandChild;
+        updateHeight(node);
+        updateHeight(child);
+        return child;
+    }
+
+    AVLTreeNode *insert (AVLTreeNode *node, int value)
+    {
+        if (node == nullptr)
+        {
+            return new AVLTreeNode(value);
+        }
+        if (value < node->value)
+        {
+            node->left = insert(node->left, value);
+        } else if (value > node->value)
+        {
+            node->right = insert(node->right, value);
+        } else
+        {
+            return node;
+        }
+        this->updateHeight(node);
+        node = rotate(node);
+        return node;
+    }
+
+    AVLTreeNode *rotate (AVLTreeNode *node)
+    {
+        int _balanceFactor = balanceFactor(node);
+        if (_balanceFactor > 1)
+        {
+            if (balanceFactor(node->left) >= 0)
+            {
+                return this->rightRotate(node);
+            } else
+            {
+                node->left = leftRotate(node->left);
+                return this->rightRotate(node);
+            }
+        }
+        if (_balanceFactor < -1)
+        {
+            if (balanceFactor(node->right) <= 0)
+            {
+                return leftRotate(node);
+            } else
+            {
+                this->rightRotate(node->right);
+                return this->leftRotate(node);
+            }
+        }
+        return node;
+    }
+
+    AVLTreeNode *remove (AVLTreeNode *node, int value)
+    {
+        if (node == nullptr)
+        {
+            return node;
+        }
+        if (value < node->value)
+        {
+            node->left = remove(node->left, value);
+        } else if (value > node->value)
+        {
+            node->right = remove(node->right, value);
+        } else
+        {
+            if (node->left == nullptr || node->right == nullptr)
+            {
+                AVLTreeNode *child = node->left == nullptr ? node->right : node->left;
+                if (child == nullptr)
+                {
+                    delete node;
+                    return nullptr;
+                } else
+                {
+                    delete node;
+                    node = child;
+                }
+            } else
+            {
+                AVLTreeNode *temp = node->right;
+                while (temp->left != nullptr)
+                {
+                    temp = temp->left;
+                }
+                int tempVal = temp->value;
+                node->right = remove(node->right, tempVal);
+                node->value = tempVal;
+            }
+        }
+        updateHeight(node);
+        node = rotate(node);
+        return node;
+    }
+
+public:
+    void insert (int value)
+    {
+        this->root = insert(root, value);
+    }
+
+    void remove (int value)
+    {
+        this->root = remove(root, value);
+    }
+
+    AVLTreeNode *getRoot ()
+    {
+        return this->root;
+    }
+
+    vector<AVLTreeNode *> levelOrder (AVLTreeNode *Root)
+    {
+        queue<AVLTreeNode *> q;
+        q.push(Root);
+        vector<AVLTreeNode *> result;
+        while (!q.empty())
+        {
+            AVLTreeNode *node = q.front();
+            q.pop();
+            result.push_back(node);
+            if (node->left != nullptr)
+            {
+                q.push(node->left);
+            }
+            if (node->right != nullptr)
+            {
+                q.push(node->right);
+            }
+        }
+        return result;
+    }
+
+    void perOrder (AVLTreeNode *Root)
+    {
+        if (Root == nullptr)
+        {
+            return;
+        }
+        cout << Root->value << " ";
+        perOrder(Root->left);
+        perOrder(Root->right);
+    }
+
+    void inOrder (AVLTreeNode *Root)
+    {
+        if (Root == nullptr)
+        {
+            return;
+        }
+        inOrder(Root->left);
+        cout << Root->value << " ";
+        inOrder(Root->right);
+    }
+
+    void postOrder (AVLTreeNode *Root)
+    {
+        if (Root == nullptr)
+        {
+            return;
+        }
+        postOrder(Root->left);
+        perOrder(Root->right);
+        cout << Root->value << " ";
+    }
+};
+
+class ArrQueue
+{
+private:
+    vector<int> maxHeap;
+
+    int left (int i)
+    {
+        return 2 * i + 1;
+    }
+
+    int right (int i)
+    {
+        return 2 * i + 2;
+    }
+
+    int parent (int i)
+    {
+        return (i - 1) / 2;
+    }
+
+    int peek ()
+    {
+        return this->maxHeap[0];
+    }
+
+    void siftUp (int i)
+    {
+        while (true)
+        {
+            int p = parent(i);
+            if (p < 0 || this->maxHeap[p] >= this->maxHeap[i])
+            {
+                return;
+            }
+            swap(this->maxHeap[p], this->maxHeap[i]);
+            i = p;
+        }
+    }
+
+    void siftDown (int i)
+    {
+        while (true)
+        {
+            int l = left(i);
+            int r = right(i);
+            int biggest = i;
+            if (l < this->maxHeap.size() && this->maxHeap[l] > this->maxHeap[biggest])
+            {
+                biggest = l;
+            }
+            if (r < this->maxHeap.size() && this->maxHeap[r] > this->maxHeap[biggest])
+            {
+                biggest = r;
+            }
+            if (biggest == i)
+            {
+                return;
+            }
+            swap(this->maxHeap[i], this->maxHeap[biggest]);
+            i = biggest;
+        }
+    }
+
+public:
+    ArrQueue (vector<int> arr)
+    {
+        this->maxHeap = arr;
+        for (int i = this->parent(this->maxHeap.size() - 1); i >= 0; i--)
+        {
+            siftDown(i);
+        }
+    }
+
+    void push (int value)
+    {
+        this->maxHeap.push_back(value);
+        siftUp(maxHeap.size() - 1);
+    }
+
+    void pop ()
+    {
+        if (this->maxHeap.empty())
+        {
+            throw out_of_range("Queue is empty");
+        }
+        swap(this->maxHeap[0], this->maxHeap[this->maxHeap.size() - 1]);
+        this->maxHeap.pop_back();
+        siftDown(0);
+    }
+
+    vector<int> getQueue ()
+    {
+        return this->maxHeap;
+    }
+};
+
+class sortHeap
+{
+private:
+    vector<int> maxHeap;
+
+    int parent (int i)
+    {
+        return (i - 1) / 2;
+    }
+
+    void siftUp (int i)
+    {
+        while (true)
+        {
+            int p = this->parent(i);
+            if (p < 0 || this->maxHeap[p] <= this->maxHeap[i])
+            {
+                return;
+            }
+            swap(this->maxHeap[p], this->maxHeap[i]);
+            i = p;
+        }
+    }
+
+    void siftDown (int i)
+    {
+        while (true)
+        {
+            int l = 2 * i + 1;
+            int r = 2 * i + 2;
+            int biggest = i;
+            if (l < this->maxHeap.size() && this->maxHeap[l] < this->maxHeap[biggest])
+            {
+                biggest = l;
+            }
+            if (r < this->maxHeap.size() && this->maxHeap[r] < this->maxHeap[biggest])
+            {
+                biggest = r;
+            }
+            if (biggest == i)
+            {
+                return;
+            }
+            swap(this->maxHeap[i], this->maxHeap[biggest]);
+            i = biggest;
+        }
+    }
+
+    void pop ()
+    {
+        if (this->maxHeap.size() == 0)
+        {
+            throw out_of_range("Heap is empty");
+        }
+        swap(this->maxHeap[0], this->maxHeap[this->maxHeap.size() - 1]);
+        this->maxHeap.pop_back();
+        this->siftDown(0);
+    }
+
+public:
+    vector<int> sort (int num, vector<int> arr)
+    {
+        if (arr.size() < num)
+        {
+            throw out_of_range("Not enough elements");
+        }
+        for (int i = 0; i < num; i++)
+        {
+            this->maxHeap.push_back(arr[i]);
+            this->siftUp(this->maxHeap.size() - 1);
+        }
+        for (int i = num; i < arr.size(); i++)
+        {
+            if (this->maxHeap[0] < arr[i])
+            {
+                this->pop();
+                this->maxHeap.push_back(arr[i]);
+                this->siftUp(this->maxHeap.size() - 1);
+            }
+        }
+        return this->maxHeap;
+    }
 };
 
 int main ()
 {
-
+    sortHeap sort = sortHeap();
+    vector<int>  arr = {12, 11, 13, 5, 6, 7 , 154 , 15 , 15616 , 1561 , 45465};
+    for(auto &i : sort.sort(4, arr))
+    {
+        cout << i << " ";
+    }
     return 0;
 }
