@@ -2,6 +2,8 @@
 #include <stack>
 #include <vector>
 #include <queue>
+#include <unordered_map>
+#include <unordered_set>
 
 using namespace std;
 
@@ -1394,13 +1396,253 @@ public:
     }
 };
 
+class graphAdjMat
+{
+private:
+    vector<int> vertices;
+    vector<vector<int>> adjMat;
+public:
+    graphAdjMat (const vector<int> &vertices, const vector<vector<int>> &adjMat)
+    {
+        for (auto &i: vertices)
+        {
+            addVertex(i);
+        }
+        for (const auto &i: adjMat)
+        {
+            addEdge(i[0], i[1]);
+        }
+    }
+
+    int size () const
+    {
+        return this->vertices.size();
+    }
+
+    void addVertex (int value)
+    {
+        int n = this->size();
+        this->vertices.push_back(value);
+        this->adjMat.emplace_back(vector<int>(n, 0));
+        for (auto &row: this->adjMat)
+        {
+            row.push_back(0);
+        }
+    }
+
+    void removeVertex (int index)
+    {
+        if (index < 0 || index >= this->size())
+        {
+            throw out_of_range("Invalid vertex");
+        }
+        this->vertices.erase(this->vertices.begin() + index);
+        this->adjMat.erase(this->adjMat.begin() + index);
+        for (auto &row: this->adjMat)
+        {
+            row.erase(row.begin() + index);
+        }
+    }
+
+    void addEdge (int from, int to)
+    {
+        if (from < 0 || to < 0 || from >= this->size() || to >= this->size() || from == to)
+        {
+            throw out_of_range("Invalid edge");
+        }
+        this->adjMat[from][to] = 1;
+        this->adjMat[to][from] = 1;
+    }
+
+    void delEdge (int from, int to)
+    {
+        if (from < 0 || to < 0 || from >= this->size() || to >= this->size() || from == to)
+        {
+            throw out_of_range("Invalid edge");
+        }
+        this->adjMat[from][to] = 0;
+        this->adjMat[to][from] = 0;
+    }
+
+    void print ()
+    {
+        for (auto &i: this->vertices)
+        {
+            cout << i << " ";
+        }
+        cout << endl;
+        for (auto &i: this->adjMat)
+        {
+            for (auto &j: i)
+            {
+                cout << j << " ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+class Vertex
+{
+public:
+    int id;
+
+    Vertex (int id) : id(id)
+    {}
+};
+
+class graphAdjList
+{
+public:
+    unordered_map<Vertex *, vector<Vertex *>> adjList;
+
+    void remove (vector<Vertex *> &vec, Vertex *ver)
+    {
+        for (int i = 0; i < vec.size(); ++i)
+        {
+            if (vec[i] == ver)
+            {
+                vec.erase(vec.begin() + i);
+                break;
+            }
+        }
+    }
+
+    graphAdjList (const vector<vector<Vertex *>> &mat)
+    {
+        for (auto &i: mat)
+        {
+            this->addVertex(i[0]);
+            this->addVertex(i[1]);
+            this->addEdge(i[0], i[1]);
+        }
+    }
+
+    int getSize ()
+    {
+        return this->adjList.size();
+    }
+
+    void addEdge (Vertex *from, Vertex *to)
+    {
+        if (!this->adjList.count(from) || !this->adjList.count(to) || from == to)
+        {
+            throw out_of_range("Invalid edge");
+        }
+        this->adjList[from].push_back(to);
+        this->adjList[to].push_back(from);
+    }
+
+    void removeEdge (Vertex *from, Vertex *to)
+    {
+        if (!this->adjList.count(from) || !this->adjList.count(to) || from == to)
+        {
+            throw out_of_range("Invalid edge");
+        }
+        this->remove(this->adjList[from], to);
+        this->remove(this->adjList[to], from);
+    }
+
+    void addVertex (Vertex *ver)
+    {
+        if (this->adjList.count(ver))
+        {
+            throw out_of_range("Vertex already exists");
+        }
+        adjList[ver] = vector<Vertex *>();
+    }
+
+    void deleteVertex (Vertex *ver)
+    {
+        if (!this->adjList.count(ver))
+        {
+            throw out_of_range("Vertex does not exist");
+        }
+        this->adjList.erase(ver);
+        for (auto &i: this->adjList)
+        {
+            remove(i.second, ver);
+        }
+    }
+
+    void print ()
+    {
+        for (auto &i: this->adjList)
+        {
+            cout << i.first->id << " ";
+            for (auto &j: i.second)
+            {
+                cout << j->id << " ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+vector<Vertex *> BFS (graphAdjList &graph, Vertex *start)
+{
+    vector<Vertex *> result;
+    unordered_set<Vertex *> visited = {start};
+    queue<Vertex *> q;
+    q.push(start);
+    while (!q.empty())
+    {
+        Vertex * current = q.front();
+        q.pop();
+        result.push_back(current);
+        for (auto &i : graph.adjList[current])
+        {
+            if (visited.count(i))
+            {
+                continue;
+            }
+            q.push(i);
+            visited.insert(i);
+        }
+    }
+    return result;
+}
+
+void dfs (graphAdjList &graph, unordered_set<Vertex*> &visited, vector<Vertex *> &res, Vertex *vet)
+{
+    res.push_back(vet);
+    visited.emplace(vet);
+    for (auto &i : graph.adjList[vet])
+    {
+        if (visited.count(i))
+        {
+            continue;
+        }
+        dfs(graph, visited, res, i);
+    }
+}
+
+vector<Vertex*> DFS (graphAdjList &graph, Vertex *start)
+{
+    vector<Vertex *> result;
+    unordered_set<Vertex *> visited = {};
+    dfs(graph, visited, result, start);
+    return result;
+}
+
 int main ()
 {
-    sortHeap sort = sortHeap();
-    vector<int>  arr = {12, 11, 13, 5, 6, 7 , 154 , 15 , 15616 , 1561 , 45465};
-    for(auto &i : sort.sort(4, arr))
+    vector<vector<Vertex *>> a;
+    Vertex *v1 = new Vertex(1);
+    Vertex *v2 = new Vertex(2);
+    vector<Vertex *> b;
+    b.push_back(v1);
+    b.push_back(v2);
+    a.push_back(b);
+    graphAdjList graph = graphAdjList(a);
+    Vertex *v3 = new Vertex(3);
+    graph.addVertex(v3);
+    graph.addEdge(v1, v3);
+    graph.addEdge(v2, v3);
+    vector<Vertex*> result = DFS(graph , graph.adjList[v1][0]);
+    for (auto &i : result)
     {
-        cout << i << " ";
+        cout << i->id << " ";
     }
     return 0;
 }
