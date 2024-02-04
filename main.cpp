@@ -1587,10 +1587,10 @@ vector<Vertex *> BFS (graphAdjList &graph, Vertex *start)
     q.push(start);
     while (!q.empty())
     {
-        Vertex * current = q.front();
+        Vertex *current = q.front();
         q.pop();
         result.push_back(current);
-        for (auto &i : graph.adjList[current])
+        for (auto &i: graph.adjList[current])
         {
             if (visited.count(i))
             {
@@ -1603,11 +1603,11 @@ vector<Vertex *> BFS (graphAdjList &graph, Vertex *start)
     return result;
 }
 
-void dfs (graphAdjList &graph, unordered_set<Vertex*> &visited, vector<Vertex *> &res, Vertex *vet)
+void dfs (graphAdjList &graph, unordered_set<Vertex *> &visited, vector<Vertex *> &res, Vertex *vet)
 {
     res.push_back(vet);
     visited.emplace(vet);
-    for (auto &i : graph.adjList[vet])
+    for (auto &i: graph.adjList[vet])
     {
         if (visited.count(i))
         {
@@ -1617,7 +1617,7 @@ void dfs (graphAdjList &graph, unordered_set<Vertex*> &visited, vector<Vertex *>
     }
 }
 
-vector<Vertex*> DFS (graphAdjList &graph, Vertex *start)
+vector<Vertex *> DFS (graphAdjList &graph, Vertex *start)
 {
     vector<Vertex *> result;
     unordered_set<Vertex *> visited = {};
@@ -1625,24 +1625,106 @@ vector<Vertex*> DFS (graphAdjList &graph, Vertex *start)
     return result;
 }
 
+int binarySearch (vector<int> &num, int target)
+{
+    int i = 0;
+    int j = num.size() - 1;
+    while (i <= j)
+    {
+        int mid = i + (j - i) / 2;
+        if (num[mid] < target)
+        {
+            i = mid + 1;
+        } else if (num[mid] > target)
+        {
+            j = mid - 1;
+        } else
+        {
+            return mid;
+        }
+    }
+    return -1;
+}
+
+int binarySearchInsertionSimple (vector<int> &nums, int target)
+{
+    int i = 0;
+    int j = nums.size() - 1;
+    while (i <= j)
+    {
+        int mid = i + (j - i) / 2;
+        if (nums[mid] > target)
+        {
+            i = mid + 1;
+        } else if (nums[mid] < target)
+        {
+            j = mid - 1;
+        } else
+        {
+            return mid;
+        }
+    }
+    return i;
+}
+
+int binarySearchInsertion (vector<int> &nums, int target)
+{
+    int i = 0;
+    int j = nums.size() - 1;
+    while (i <= j)
+    {
+        int mid = i + (j - i) / 2;
+        if (nums[mid] > target)
+        {
+            j = mid - 1;
+        } else if (nums[mid] < target)
+        {
+            i = mid + 1;
+        } else
+        {
+            j = mid - 1;
+        }
+    }
+    return i;
+}
+
+int binarySearchLeftEdge (vector<int> &nums, int target)
+{
+    int i = binarySearchInsertion(nums, target);
+    if (i == nums.size() || nums[i] != target)
+    {
+        return -1;
+    }
+    return i;
+}
+
+int binarySearchRightEdge (vector<int> &nums, int target)
+{
+    int i = binarySearchInsertion(nums, target + 1);
+    int j = i - 1;
+    if (j == -1 || nums[j] != target)
+    {
+        return -1;
+    }
+    return j;
+}
+
+vector<int> twoSumHash (vector<int> &num, int target)
+{
+    unordered_map<int, int> dic;
+    for (int i = 0; i < num.size(); ++i)
+    {
+        if (dic.find(target - num[i]) != dic.end())
+        {
+            return {dic[target - num[i]], i};
+        }
+        dic.insert(pair<int, int>{num[i], i});
+    }
+    return {};
+}
+
 int main ()
 {
-    vector<vector<Vertex *>> a;
-    Vertex *v1 = new Vertex(1);
-    Vertex *v2 = new Vertex(2);
-    vector<Vertex *> b;
-    b.push_back(v1);
-    b.push_back(v2);
-    a.push_back(b);
-    graphAdjList graph = graphAdjList(a);
-    Vertex *v3 = new Vertex(3);
-    graph.addVertex(v3);
-    graph.addEdge(v1, v3);
-    graph.addEdge(v2, v3);
-    vector<Vertex*> result = DFS(graph , graph.adjList[v1][0]);
-    for (auto &i : result)
-    {
-        cout << i->id << " ";
-    }
+
     return 0;
 }
