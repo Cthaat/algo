@@ -1723,8 +1723,179 @@ vector<int> twoSumHash (vector<int> &num, int target)
     return {};
 }
 
+void selectionSort (vector<int> &nums)
+{
+    for (int i = 0; i < nums.size() - 1; ++i)
+    {
+        int k = i;
+        for (int j = i + 1; j < nums.size(); ++j)
+        {
+            if (nums[j] < nums[k])
+            {
+                k = j;
+            }
+            swap(nums[i], nums[k]);
+        }
+    }
+}
+
+void print (vector<int> &num)
+{
+    for (auto &i: num)
+    {
+        cout << i << " ";
+    }
+}
+
+void bubbleSort (vector<int> &nums)
+{
+    for (int i = nums.size() - 1; i > 0; --i)
+    {
+        bool flag = true;
+        for (int j = 0; j < i; ++j)
+        {
+            if (nums[j] > nums[j + 1])
+            {
+                swap(nums[j], nums[j + 1]);
+                flag = false;
+            }
+        }
+        if (flag)
+        {
+            break;
+        }
+    }
+}
+
+void insertionSort (vector<int> &nums)
+{
+    for (int i = 1; i < nums.size(); ++i)
+    {
+        int base = nums[i];
+        int j = i - 1;
+        while (j >= 0 && nums[j] > base)
+        {
+            nums[j + 1] = nums[j];
+            --j;
+        }
+        nums[j + 1] = base;
+    }
+}
+
+int partition (vector<int> &nums, int low, int high)
+{
+    int i = low;
+    int j = high;
+    while (i < j)
+    {
+        while (i < j && nums[j] >= nums[low])
+        {
+            j--;
+        }
+        while (i < j && nums[i] <= nums[low])
+        {
+            i++;
+        }
+        swap(nums[i], nums[j]);
+    }
+    swap(nums[i], nums[low]);
+    return i;
+}
+
+void quickSort (vector<int> &nums, int low, int high)
+{
+    if (low >= high)
+    {
+        return;
+    }
+    int pivot = partition(nums, low, high);
+    quickSort(nums, low, pivot - 1);
+    quickSort(nums, pivot + 1, high);
+}
+
+void merge (vector<int> &nums, int low, int mid, int high)
+{
+    vector<int> tem(high - low + 1);
+    int i = low;
+    int j = mid + 1;
+    int k = 0;
+    while (i <= mid && j <= high)
+    {
+        if (nums[i] <= nums[j])
+        {
+            tem[k++] = nums[i++];
+        } else
+        {
+            tem[k++] = nums[j++];
+        }
+    }
+    while (i <= mid)
+    {
+        tem[k++] = nums[i++];
+    }
+    while (j <= high)
+    {
+        tem[k++] = nums[j++];
+    }
+    for (k = 0; k < tem.size(); k++)
+    {
+        nums[low + k] = tem[k];
+    }
+}
+
+void mergeSort (vector<int> &nums, int low, int high)
+{
+    if (low >= high)
+    {
+        return;
+    }
+    int mid = (low + high) / 2;
+    mergeSort(nums, low, mid);
+    mergeSort(nums, mid + 1, high);
+    merge(nums, low, mid, high);
+}
+
+void siftDown (vector<int> &nums, int n, int i)
+{
+    while (true)
+    {
+        int l = 2 * i + 1;
+        int r = 2 * i + 2;
+        int max = i;
+        if (l < n && nums[l] > nums[max])
+        {
+            max = l;
+        }
+        if (r <n && nums[r] > nums[max])
+        {
+            max = r;
+        }
+        if (max == i)
+        {
+            break;
+        }
+        swap(nums[i], nums[max]);
+        i = max;
+    }
+}
+
+void heapSort (vector<int> &nums)
+{
+    for (int i = nums.size() / 2 - 1; i >= 0; i--)
+    {
+        siftDown (nums , nums.size(), i);
+    }
+    for (int i = nums.size() - 1; i > 0; --i)
+    {
+        swap(nums[0], nums[i]);
+        siftDown(nums, i, 0);
+    }
+}
+
 int main ()
 {
-
+    vector<int> nums = {2, 7, 11, 15, 189, 561, 651, 65, 65265, 2, 651, 51, 51, 9, 1, 9, 5, 1, 591, 5, 1};
+    heapSort(nums);
+    print(nums);
     return 0;
 }
