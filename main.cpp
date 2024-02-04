@@ -4,6 +4,7 @@
 #include <queue>
 #include <unordered_map>
 #include <unordered_set>
+#include <algorithm>
 
 using namespace std;
 
@@ -1866,7 +1867,7 @@ void siftDown (vector<int> &nums, int n, int i)
         {
             max = l;
         }
-        if (r <n && nums[r] > nums[max])
+        if (r < n && nums[r] > nums[max])
         {
             max = r;
         }
@@ -1883,7 +1884,7 @@ void heapSort (vector<int> &nums)
 {
     for (int i = nums.size() / 2 - 1; i >= 0; i--)
     {
-        siftDown (nums , nums.size(), i);
+        siftDown(nums, nums.size(), i);
     }
     for (int i = nums.size() - 1; i > 0; --i)
     {
@@ -1892,12 +1893,97 @@ void heapSort (vector<int> &nums)
     }
 }
 
+void countingSortNaive (vector<int> &nums)
+{
+    int max = 0;
+    for (auto &i: nums)
+    {
+        max = max > i ? max : i;
+    }
+    vector<int> count(max + 1, 0);
+    for (auto &i: nums)
+    {
+        count[i]++;
+    }
+    int num = 0;
+    for (int i = 0; i < max + 1; ++i)
+    {
+        for (int j = 0; j < count[i]; ++j, ++num)
+        {
+            nums[num] = i;
+        }
+    }
+}
 
+void countingSort (vector<int> &nums)
+{
+    int m = 0;
+    for (auto &num: nums)
+    {
+        m = m > num ? m : num;
+    }
+    vector<int> count(m + 1, 0);
+    for (auto &num: nums)
+    {
+        count[num]++;
+    }
+    for (int i = 0; i < m + 1; ++i)
+    {
+        count[i + 1] += count[i];
+    }
+    int n = nums.size();
+    vector<int> res(n);
+    for (int i = 0; i < n; ++i)
+    {
+        int num = nums[i];
+        res[count[num] - 1] = num;
+        count[num]--;
+    }
+    nums = res;
+}
+
+int digit (int num, int exp)
+{
+    return (num / exp) % 10;
+}
+
+void countingSortDigit (vector<int> &nums, int exp)
+{
+    vector<int> counter(10, 0);
+    int n = nums.size();
+    for (int i = 0; i < n; ++i)
+    {
+        int d = digit(nums[i], exp);
+        counter[d]++;
+    }
+    for (int i = 1; i < 10; ++i)
+    {
+        counter[i] += counter[i - 1];
+    }
+    vector<int> res(n, 0);
+    for (int i = n - 1; i >= 0; --i)
+    {
+        int d = digit(nums[i], exp);
+        int j = counter[d] - 1;
+        res[j] = nums[i];
+        counter[d]--;
+    }
+    nums = res;
+}
+
+void radixSort (vector<int> &nums)
+{
+    int max = *max_element(nums.begin(), nums.end());
+    for (int exp = 1; exp <= max; exp *= 10)
+    {
+        countingSortDigit(nums, exp);
+    }
+}
 
 int main ()
 {
-    vector<int> nums = {2, 7, 11, 15, 189, 561, 651, 65, 65265, 2, 651, 51, 51, 9, 1, 9, 5, 1, 591, 5, 1};
-    heapSort(nums);
+    vector<int> nums = {2, 7, 11, 15, 189, 561, 651, 65, 6526, 2, 651, 51, 51, 9, 1, 9, 5, 1, 591, 5, 1};
+    radixSort(nums);
     print(nums);
     return 0;
 }
