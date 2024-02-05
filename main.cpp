@@ -1980,10 +1980,81 @@ void radixSort (vector<int> &nums)
     }
 }
 
+int dfsSearch (vector<int> &nums, int target, int begin, int end)
+{
+    if (begin > end)
+    {
+        return -1;
+    }
+    int mid = (begin + end) / 2;
+    if (nums[mid] > target)
+    {
+        return dfsSearch(nums, target, begin, mid - 1);
+    } else if (nums[mid] < target)
+    {
+        return dfsSearch(nums, target, mid + 1, end);
+    } else
+    {
+        return mid;
+    }
+}
+
+treeNode *dfsBuildTree (vector<int> &pre, unordered_map<int, int> &inorder, int i, int r, int l)
+{
+    if (r - l < 0)
+    {
+        return nullptr;
+    }
+    treeNode *root = new treeNode(pre[i]);
+    int mid = inorder[pre[i]];
+    root->left = dfsBuildTree(pre, inorder, i + 1, mid - 1, l);
+    root->right = dfsBuildTree(pre, inorder, i + mid - l + 1, r, mid + 1);
+    return root;
+}
+
+treeNode *buildTree (vector<int> &pre, vector<int> &in)
+{
+    unordered_map<int,int> inorder;
+    for (int i = 0; i < in.size(); ++i)
+    {
+        inorder[in[i]] = i;
+    }
+    treeNode *root = dfsBuildTree(pre, inorder, 0, pre.size() - 1, 0);
+    return root;
+}
+
+void move (stack<int> &src , stack<int> &tar)
+{
+    tar.push(src.top());
+    src.pop();
+}
+
+void dfsHanota (int n , stack<int> &src, stack<int> &buf, stack<int> &tar)
+{
+    if (n == 1)
+    {
+        move(src, tar);
+        return;
+    }
+    dfsHanota (n - 1 , src , tar , buf);
+    move(src , tar);
+    dfsHanota (n - 1 , buf , src , tar);
+}
+
+void hanota (stack<int> &A, stack<int> &B, stack<int> &C)
+{
+    int n = A.size();
+    dfsHanota (n , A , B , C);
+}
+
 int main ()
 {
-    vector<int> nums = {2, 7, 11, 15, 189, 561, 651, 65, 6526, 2, 651, 51, 51, 9, 1, 9, 5, 1, 591, 5, 1};
-    radixSort(nums);
-    print(nums);
+    stack<int> A;
+    A.push(3);
+    A.push(2);
+    A.push(1);
+    stack<int> B;
+    stack<int> C;
+    hanota(A, B, C);
     return 0;
 }
