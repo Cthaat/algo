@@ -2014,7 +2014,7 @@ treeNode *dfsBuildTree (vector<int> &pre, unordered_map<int, int> &inorder, int 
 
 treeNode *buildTree (vector<int> &pre, vector<int> &in)
 {
-    unordered_map<int,int> inorder;
+    unordered_map<int, int> inorder;
     for (int i = 0; i < in.size(); ++i)
     {
         inorder[in[i]] = i;
@@ -2023,38 +2023,105 @@ treeNode *buildTree (vector<int> &pre, vector<int> &in)
     return root;
 }
 
-void move (stack<int> &src , stack<int> &tar)
+void move (stack<int> &src, stack<int> &tar)
 {
     tar.push(src.top());
     src.pop();
 }
 
-void dfsHanota (int n , stack<int> &src, stack<int> &buf, stack<int> &tar)
+void dfsHanota (int n, stack<int> &src, stack<int> &buf, stack<int> &tar)
 {
     if (n == 1)
     {
         move(src, tar);
         return;
     }
-    dfsHanota (n - 1 , src , tar , buf);
-    move(src , tar);
-    dfsHanota (n - 1 , buf , src , tar);
+    dfsHanota(n - 1, src, tar, buf);
+    move(src, tar);
+    dfsHanota(n - 1, buf, src, tar);
 }
 
 void hanota (stack<int> &A, stack<int> &B, stack<int> &C)
 {
     int n = A.size();
-    dfsHanota (n , A , B , C);
+    dfsHanota(n, A, B, C);
+}
+
+void backTrack (vector<int> &state, const vector<int> &choices, vector<bool> &selected, vector<vector<int>> &res)
+{
+    if (state.size() == choices.size())
+    {
+        res.push_back(state);
+        for (auto &i: state)
+        {
+            cout << i << " ";
+        }
+        cout << endl;
+        return;
+    }
+    for (int i = 0; i < choices.size(); i++)
+    {
+        int choice = choices[i];
+        if (!selected[i])
+        {
+            selected[i] = true;
+            state.push_back(choice);
+            backTrack(state, choices, selected, res);
+            selected[i] = false;
+            state.pop_back();
+        }
+    }
+}
+
+vector<vector<int>> permute (vector<int> &nums)
+{
+    vector<int> state;
+    vector<bool> selected(nums.size(), false);
+    vector<vector<int>> res;
+    backTrack(state, nums, selected, res);
+    return res;
+}
+
+void backtrace (vector<int> &state, const vector<int> &choices, vector<bool> &selected, vector<vector<int>> &res)
+{
+    if (state.size() == choices.size())
+    {
+        res.push_back(state);
+        for (auto &i: state)
+        {
+            cout << i << " ";
+        }
+        cout << endl;
+        return;
+    }
+    unordered_set<int> dulicated;
+    for (int i = 0; i < choices.size(); i++)
+    {
+        int choice = choices[i];
+        if (!selected[i] && dulicated.find(choice) == dulicated.end())
+        {
+            dulicated.insert(choice);
+            selected[i] = true;
+            state.push_back(choice);
+            backtrace(state, choices, selected, res);
+            selected[i] = false;
+            state.pop_back();
+        }
+    }
+}
+
+vector<vector<int>> permute1 (vector<int> &nums)
+{
+    vector<int> state;
+    vector<bool> selected(nums.size(), false);
+    vector<vector<int>> res;
+    backtrace(state, nums, selected, res);
+    return res;
 }
 
 int main ()
 {
-    stack<int> A;
-    A.push(3);
-    A.push(2);
-    A.push(1);
-    stack<int> B;
-    stack<int> C;
-    hanota(A, B, C);
+    vector<int> nums = {1, 2, 3, 1};
+    vector<vector<int>> res = permute1(nums);
     return 0;
 }
