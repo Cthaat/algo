@@ -2,6 +2,7 @@
 #include <stack>
 #include <vector>
 #include <queue>
+#include <set>
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>
@@ -2110,6 +2111,35 @@ void backtrace (vector<int> &state, const vector<int> &choices, vector<bool> &se
     }
 }
 
+void backtrack (vector<int> &state, vector<int> &choices, int target, int total, vector<vector<int>> &res)
+{
+    if (total == target)
+    {
+        res.push_back(state);
+        return;
+    }
+    for (int i = 0; i < choices.size(); ++i)
+    {
+        if (total + choices[i] > target)
+        {
+            return;
+        }
+        state.push_back(choices[i]);
+        backtrack(state, choices, target, total + choices[i], res);
+        state.pop_back();
+    }
+}
+
+vector<vector<int>> subsetSumINaive (vector<int> &choice, int target)
+{
+    sort(choice.begin(), choice.end());
+    int total = 0;
+    vector<vector<int>> res;
+    vector<int> state;
+    backtrack(state, choice, target, total, res);
+    return res;
+}
+
 vector<vector<int>> permute1 (vector<int> &nums)
 {
     vector<int> state;
@@ -2119,9 +2149,116 @@ vector<vector<int>> permute1 (vector<int> &nums)
     return res;
 }
 
+void backtrack1 (vector<int> &choices, vector<int> &state, int start, int target, int total, vector<vector<int>> &res)
+{
+    if (target == total)
+    {
+        res.push_back(state);
+        return;
+    }
+    for (int i = start; i < choices.size(); ++i)
+    {
+        if (total + choices[i] > target)
+        {
+            return;
+        }
+        state.push_back(choices[i]);
+        backtrack1(choices, state, i, target, total + choices[i], res);
+        state.pop_back();
+    }
+}
+
+vector<vector<int>> subsetSumI (vector<int> &nums, int target)
+{
+    set<int> num;
+    for (int i = 0; i < nums.size() - 1; ++i)
+    {
+        num.insert(nums[i]);
+    }
+    std::vector<int> choices(num.begin(), num.end());
+    std::vector<vector<int>> res;
+    vector<int> state;
+    backtrack1(choices, state, 0, target, 0, res);
+    return res;
+}
+
+void backtrack2 (vector<int> &state, int target, vector<int> &choices, int start, vector<vector<int>> &res)
+{
+    if (target == 0)
+    {
+        res.push_back(state);
+        return;
+    }
+    for (int i = start; i < choices.size(); i++)
+    {
+        if (target - choices[i] < 0)
+        {
+            break;
+        }
+        state.push_back(choices[i]);
+        backtrack2(state, target - choices[i], choices, i, res);
+        state.pop_back();
+    }
+}
+
+vector<vector<int>> subsetSumI2 (vector<int> &nums, int target)
+{
+    vector<int> state;
+    sort(nums.begin(), nums.end());
+    int start = 0;
+    vector<vector<int>> res;
+    backtrack2(state, target, nums, start, res);
+    return res;
+}
+
+void backtrack (int row, int n, vector<vector<int>> &state, vector<vector<vector<int>>> &res, vector<bool> &cols,
+                vector<bool> &diags1, vector<bool> &diags2)
+{
+    if (row == n)
+    {
+        res.push_back(state);
+        return;
+    }
+    for (int i = 0; i < n; ++i)
+    {
+        int diag1 = row - i + n - 1;
+        int diag2 = row + i;
+        if (!cols[i] && !diags1[diag1] && !diags2[diag2])
+        {
+            state[row][i] = 1;
+            cols[i] = diags1[diag1] = diags2[diag2] = true;
+            backtrack(row + 1, n, state, res, cols, diags1, diags2);
+            state[row][i] = 0;
+            cols[i] = diags1[diag1] = diags2[diag2] = false;
+        }
+    }
+}
+
+vector<vector<vector<int>>> nQueens (int n)
+{
+    vector<vector<int>> state(n, vector<int>(n, 0));
+    vector<bool> cols(n, false);
+    vector<bool> diags1(2 * n - 1, false);
+    vector<bool> diags2(2 * n - 1, false);
+    vector<vector<vector<int>>> res;
+    backtrack(0, n, state, res, cols, diags1, diags2);
+    return res;
+}
+
 int main ()
 {
-    vector<int> nums = {1, 2, 3, 1};
-    vector<vector<int>> res = permute1(nums);
+    vector<vector<vector<int>>> res = nQueens(9);
+    for (auto &i: res)
+    {
+        for (auto &j: i)
+        {
+            for (auto &k: j)
+            {
+                cout << k << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
     return 0;
 }
