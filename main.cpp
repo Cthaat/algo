@@ -2340,7 +2340,7 @@ int minCostClimbingStairsDP (vector<int> &cost)
 
 int main ()
 {
-    vector<int> cost = {0, 15, 2 , 1 , 5 , 4};
+    vector<int> cost = {0, 15, 2 , 1 , 5 , 4 , 3 , 2 , 1 , 1 , 0};
     cout << minCostClimbingStairsDP(cost) << endl;
     return 0;
 }
