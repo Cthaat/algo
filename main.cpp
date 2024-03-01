@@ -2245,20 +2245,102 @@ vector<vector<vector<int>>> nQueens (int n)
     return res;
 }
 
+void backtrack (vector<int> &choice, int total, int state, vector<vector<int>> &res)
+{
+    if (total == state)
+    {
+        res.push_back(choice);
+        return;
+    }
+    if (state > total)
+    {
+        return;
+    }
+    choice.push_back(1);
+    backtrack(choice, total, state + 1, res);
+    choice.pop_back();
+    choice.push_back(2);
+    backtrack(choice, total, state + 2, res);
+    choice.pop_back();
+}
+
+vector<vector<int>> climbingStairsBacktrack (int num)
+{
+    vector<int> choices;
+    vector<vector<int>> res;
+    backtrack(choices, num, 0, res);
+    return res;
+}
+
+int dfs (int i)
+{
+    if (i == 1 || i == 2)
+    {
+        return i;
+    }
+    int count = dfs(i - 1) + dfs(i - 2);
+    return count;
+}
+
+int dfs (int i, vector<int> &num)
+{
+    if (i == 1 || i == 2)
+    {
+        return i;
+    }
+    if (num[i] != -1)
+    {
+        return num[i];
+    }
+    int count = dfs(i - 1) + dfs(i - 2);
+    num[i] = count;
+    return count;
+}
+
+int climbingStairsDFSMem (int i)
+{
+    vector<int> nums(i + 1, -1);
+    return dfs(i, nums);
+}
+
+int climbingStairsDP (int i)
+{
+    if (i == 1 || i == 2)
+    {
+        return i;
+    }
+    int DP1 = 1;
+    int DP2 = 2;
+    int DP3 = DP1 + DP2;
+    for (int j = 3; j <= i; j++)
+    {
+        DP3 = DP1 + DP2;
+        DP1 = DP2;
+        DP2 = DP3;
+    }
+    return DP3;
+}
+
+int minCostClimbingStairsDP (vector<int> &cost)
+{
+    int n = cost.size() - 1;
+    if (n == 1 || n == 2)
+    {
+        return cost[n];
+    }
+    vector<int> dp(n + 1, 0);
+    dp[1] = cost[1];
+    dp[2] = cost[2];
+    for (int i = 3 ; i <= n; i++)
+    {
+        dp[i] = cost[i] + min(dp[i - 1], dp[i - 2]);
+    }
+    return dp[n];
+}
+
 int main ()
 {
-    vector<vector<vector<int>>> res = nQueens(9);
-    for (auto &i: res)
-    {
-        for (auto &j: i)
-        {
-            for (auto &k: j)
-            {
-                cout << k << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
+    vector<int> cost = {0, 15, 2 , 1 , 5 , 4};
+    cout << minCostClimbingStairsDP(cost) << endl;
     return 0;
 }
