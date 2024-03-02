@@ -2513,10 +2513,110 @@ int knapsackDPComp (vector<int> &wgt, vector<int> &val, int cap)
     return dp[cap];
 }
 
+int knapsackDPCompSame (vector<int> &wgt, vector<int> &val, int cap)
+{
+    int n = wgt.size();
+    vector<int> dp(cap + 1, 0);
+    for (int i = 1; i <= n; ++i)
+    {
+        for (int j = 1; j <= cap; ++j)
+        {
+            if (wgt[i - 1] > j)
+            {
+                continue;
+            } else
+            {
+                dp[j] = max(dp[j], val[i - 1] + dp[j - wgt[i - 1]]);
+            }
+        }
+    }
+    return dp[cap];
+}
+
+int knapsackBFSame (vector<int> &wgt, vector<int> &val, int cap)
+{
+    int n = wgt.size();
+    vector<vector<int>> dp(n + 1, vector<int>(cap + 1, 0));
+    for (int i = 1; i <= n; ++i)
+    {
+        for (int j = 1; j <= cap; ++j)
+        {
+            if (wgt[i - 1] > j)
+            {
+                dp[i][j] = dp[i - 1][j];
+            } else
+            {
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - wgt[i - 1]] + val[i - 1]);
+            }
+        }
+    }
+    return dp[n][cap];
+}
+
+int coinChangeDP (vector<int> &coins, int amount)
+{
+    int n = coins.size();
+    int MAX_COUNT = amount + 1;
+    vector<vector<int>> dp(n + 1, vector<int>(MAX_COUNT, 0));
+    for (int i = 1; i <= amount; ++i)
+    {
+        dp[0][i] = MAX_COUNT;
+    }
+    for (int i = 1; i <= n; ++i)
+    {
+        for (int j = 1; j <= amount; ++j)
+        {
+            if (coins[i - 1] > j)
+            {
+                dp[i][j] = dp[i - 1][j];
+            } else
+            {
+                dp[i][j] = min(dp[i - 1][j], dp[i][j - coins[i - 1]] + 1);
+            }
+        }
+    }
+    return dp[n][amount] == MAX_COUNT ? -1 : dp[n][amount];
+}
+
+int coinChangeDPComp (vector<int> &coins, int amt)
+{
+    int n = coins.size();
+    int MAX_COUNT = amt + 1;
+    vector<int> dp(MAX_COUNT, MAX_COUNT);
+    dp[0] = 0;
+    for (int i = 1; i <= n; ++i)
+    {
+        for (int j = 1; j <= amt; ++j)
+        {
+            if (coins[i - 1] > j)
+            {
+                dp[j] = dp[j];
+            } else
+            {
+                dp[j] = min(dp[j], dp[j - coins[i - 1]] + 1);
+            }
+        }
+    }
+    return dp[amt] == MAX_COUNT ? -1 : dp[amt];
+}
+
+void coinChangeIIDFS (vector<int> &coins , int amount , int total , vector<int> choices , vector<vector<int>> &allComb)
+{
+    if (amount == 0)
+    {
+        return;
+    }
+    if (total == amount)
+    {
+        allComb.push_back(choices);
+        return;
+    }
+
+}
+
 int main ()
 {
-    std::vector<int> wgt = {10, 20, 30, 40, 50};
-    std::vector<int> val = {50, 120, 150, 210, 240};
-    std::cout << knapsackDPComp(wgt, val, 50) << std::endl;
+    vector<int> coins = {1, 2, 5};
+    cout << coinChangeDPComp(coins, 12000) << endl;
     return 0;
 }
