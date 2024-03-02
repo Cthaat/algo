@@ -2600,23 +2600,41 @@ int coinChangeDPComp (vector<int> &coins, int amt)
     return dp[amt] == MAX_COUNT ? -1 : dp[amt];
 }
 
-void coinChangeIIDFS (vector<int> &coins , int amount , int total , vector<int> choices , vector<vector<int>> &allComb)
+void DFS (vector<int> &coins, int amount, int total, vector<int> &choices, vector<vector<int>> &allComb,
+          vector<bool> &selected)
 {
     if (amount == 0)
     {
         return;
     }
-    if (total == amount)
+    if (total == amount && !selected[choices.size() - 1])
     {
+        selected[choices.size() - 1] = true;
         allComb.push_back(choices);
         return;
     }
+    for (int i = 0; i < coins.size() && total < amount; ++i)
+    {
+        choices.push_back(coins[i]);
+        DFS(coins, amount, total + coins[i], choices, allComb, selected);
+        choices.pop_back();
+    }
+}
 
+vector<vector<int>> coinChangeIIDFS (vector<int> &coins, int amount)
+{
+    sort(coins.begin(), coins.end());
+    vector<bool> selected;
+    vector<vector<int>> res;
+    selected.resize(amount / coins[0] + 1, false);
+    vector<int> choices;
+    DFS(coins, amount, 0, choices, res, selected);
+    return res;
 }
 
 int main ()
 {
     vector<int> coins = {1, 2, 5};
-    cout << coinChangeDPComp(coins, 12000) << endl;
+    vector<vector<int>> res = coinChangeIIDFS(coins, 11);
     return 0;
 }
