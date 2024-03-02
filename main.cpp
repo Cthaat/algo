@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>
+#include <numeric>
 
 using namespace std;
 
@@ -2331,25 +2332,25 @@ int minCostClimbingStairsDP (vector<int> &cost)
     vector<int> dp(n + 1, 0);
     dp[1] = cost[1];
     dp[2] = cost[2];
-    for (int i = 3 ; i <= n; i++)
+    for (int i = 3; i <= n; i++)
     {
         dp[i] = cost[i] + min(dp[i - 1], dp[i - 2]);
     }
     return dp[n];
 }
 
-int climbingStairsConstraintDP(int n)
+int climbingStairsConstraintDP (int n)
 {
     if (n == 1 || n == 2)
     {
         return 1;
     }
-    vector<vector<int>> dp (n + 1, vector<int>(3, 0));
+    vector<vector<int>> dp(n + 1, vector<int>(3, 0));
     dp[1][1] = 1;
     dp[1][2] = 0;
     dp[2][1] = 0;
     dp[2][2] = 1;
-    for (int i = 3 ; i <= n ; ++i)
+    for (int i = 3; i <= n; ++i)
     {
         dp[i][1] = dp[i - 1][2];
         dp[i][2] = dp[i - 2][1] + dp[i - 2][2];
@@ -2357,8 +2358,165 @@ int climbingStairsConstraintDP(int n)
     return dp[n][1] + dp[n][2];
 }
 
+int minPathSumDFS (vector<vector<int>> &grid, int i, int j)
+{
+    if (i == 0 && j == 0)
+    {
+        return grid[0][0];
+    }
+    if (i < 0 || j < 0)
+    {
+        return INT_MAX;
+    }
+    int up = minPathSumDFS(grid, i - 1, j);
+    int left = minPathSumDFS(grid, i, j - 1);
+    return min(up, left) != INT_MAX ? grid[i][j] + min(up, left) : INT_MAX;
+}
+
+int minPathSumDFSMem (vector<vector<int>> &grid, int i, int j, vector<vector<int>> &mem)
+{
+    if (i == 0 && j == 0)
+    {
+        return grid[0][0];
+    }
+    if (i < 0 || j < 0)
+    {
+        return INT_MAX;
+    }
+    if (mem[i][j] != -1)
+    {
+        return mem[i][j];
+    }
+    int up = minPathSumDFSMem(grid, i - 1, j, mem);
+    int left = minPathSumDFSMem(grid, i, j - 1, mem);
+    mem[i][j] = min(up, left) != INT_MAX ? grid[i][j] + min(up, left) : INT_MAX;
+    return mem[i][j];
+}
+
+int minPathSumDP (vector<vector<int>> &grid)
+{
+    int n = grid.size();
+    int m = grid[0].size();
+    std::vector<vector<int>> dp(n, std::vector<int>(m, 0));
+    dp[0][0] = grid[0][0];
+    for (int i = 1; i < m; ++i)
+    {
+        dp[i][0] = dp[i - 1][0] + grid[i][0];
+    }
+    for (int i = 1; i < n; ++i)
+    {
+        dp[0][i] = dp[0][i - 1] + grid[0][i];
+    }
+    for (int i = 1; i < n; ++i)
+    {
+        for (int j = 1; j < m; ++j)
+        {
+            dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
+        }
+    }
+    return dp[n - 1][m - 1];
+}
+
+int minPathSumDPComp (vector<vector<int>> &grid)
+{
+    int n = grid.size();
+    int m = grid[0].size();
+    vector<int> dp(m, 0);
+    dp[0] = grid[0][0];
+    for (int j = 1; j < m; ++j)
+    {
+        dp[j] = dp[j - 1] + grid[0][j];
+    }
+    for (int i = 1; i < n; ++i)
+    {
+        dp[0] += grid[i][0];
+        for (int j = 1; j < m; ++j)
+        {
+            dp[j] = min(dp[j - 1], dp[j]) + grid[i][j];
+        }
+    }
+    return dp[m - 1];
+}
+
+int knapsackDFS (vector<int> &wgt, vector<int> &val, int i, int cap)
+{
+    if (i == 0 || cap == 0)
+    {
+        return 0;
+    }
+    if (wgt[i - 1] > cap)
+    {
+        return knapsackDFS(wgt, val, i - 1, cap);
+    }
+    int no = knapsackDFS(wgt, val, i - 1, cap);
+    int yes = val[i - 1] + knapsackDFS(wgt, val, i - 1, cap - wgt[i - 1]);
+    return max(no, yes);
+}
+
+int knapsackDFSmem (vector<int> &wgt, vector<int> &val, int i, int cap, vector<vector<int>> &mem)
+{
+    if (i == 0 || cap == 0)
+    {
+        return 0;
+    }
+    if (mem[i][cap] != -1)
+    {
+        return mem[i][cap];
+    }
+    if (wgt[i - 1] > cap)
+    {
+        return knapsackDFS(wgt, val, i - 1, cap);
+    }
+    int no = knapsackDFS(wgt, val, i - 1, cap);
+    int yes = val[i - 1] + knapsackDFS(wgt, val, i - 1, cap - wgt[i - 1]);
+    mem[i][cap] = max(no, yes);
+    return mem[i][cap];
+}
+
+int knapsackBF (vector<int> &wgt, vector<int> &val, int cap)
+{
+    int n = wgt.size();
+    vector<vector<int>> dp(n + 1, vector<int>(cap + 1, 0));
+    for (int i = 1; i <= n; ++i)
+    {
+        for (int j = 1; j <= cap; ++j)
+        {
+            if (wgt[i - 1] > j)
+            {
+                dp[i][j] = dp[i - 1][j];
+            } else
+            {
+                dp[i][j] = max(dp[i - 1][j], val[i - 1] + dp[i - 1][j - wgt[i - 1]]);
+            }
+        }
+    }
+    return dp[n][cap];
+}
+
+int knapsackDPComp (vector<int> &wgt, vector<int> &val, int cap)
+{
+    int n = wgt.size();
+    vector<int> dp(cap + 1, 0);
+    for (int i = 1; i <= n; ++i)
+    {
+        for (int j = cap; j >= 1; --j)
+        {
+            if (wgt[i - 1] > j)
+            {
+                continue;
+            } else
+            {
+                dp[j] = max(dp[j], val[i - 1] + dp[j - wgt[i - 1]]);
+            }
+        }
+    }
+    return dp[cap];
+}
+
 int main ()
 {
-    std::cout << climbingStairsConstraintDP(10) << std::endl;
+    std::vector<int> wgt = {10, 20, 30, 40, 50};
+    std::vector<int> val = {50, 120, 150, 210, 240};
+    std::cout << knapsackDPComp(wgt, val, 50) << std::endl;
     return 0;
 }
