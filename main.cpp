@@ -2632,9 +2632,111 @@ vector<vector<int>> coinChangeIIDFS (vector<int> &coins, int amount)
     return res;
 }
 
+int coinChangeIIDP (vector<int> &coins, int amt)
+{
+    int n = coins.size();
+    vector<vector<int>> dp(n + 1, vector<int>(amt + 1, 0));
+    for (int i = 0; i <= n; ++i)
+    {
+        dp[i][0] = 1;
+    }
+    for (int i = 1; i <= n; ++i)
+    {
+        for (int j = 1; j <= amt; ++j)
+        {
+            if (coins[i - 1] > j)
+            {
+                dp[i][j] = dp[i - 1][j];
+            } else
+            {
+                dp[i][j] = dp[i - 1][j] + dp[i][j - coins[i - 1]];
+            }
+        }
+    }
+    return dp[n][amt];
+}
+
+int coinChangeIIDPComp (vector<int> &coins, int amt)
+{
+    int n = coins.size();
+    vector<int> dp(amt + 1, 0);
+    dp[0] = 1;
+    for (int i = 1; i <= n; ++i)
+    {
+        for (int j = 1; j <= amt; ++j)
+        {
+            if (coins[i - 1] > j)
+            {
+                continue;
+            } else
+            {
+                dp[j] += dp[j - coins[i - 1]];
+            }
+        }
+    }
+    return dp[amt];
+}
+
+int editDistanceDP (string s, string t)
+{
+    int n = s.length();
+    int m = t.length();
+    vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+    for (int i = 1; i <= n; ++i)
+    {
+        dp[i][0] = i;
+    }
+    for (int j = 1; j < m; ++j)
+    {
+        dp[0][j] = j;
+    }
+    for (int i = 1; i <= n; ++i)
+    {
+        for (int j = 1; j <= m; ++j)
+        {
+            if (s[i - 1] == t[j - 1])
+            {
+                dp[i][j] = dp[i - 1][j - 1];
+            } else
+            {
+                dp[i][j] = min(dp[i][j - 1], min(dp[i - 1][j], dp[i - 1][j - 1])) + 1;
+            }
+        }
+    }
+    return dp[n][m];
+}
+
+int editDistanceDPComp (string s, string t)
+{
+    int n = s.length();
+    int m = t.length();
+    vector<int> dp = vector<int>(m + 1, 0);
+    dp[0] = 0;
+    for (int i = 1; i <= n; ++i)
+    {
+        int leftup = dp[0];
+        for (int j = 1; j <= m; ++j)
+        {
+            int temp = dp[j];
+            if (s[i - 1] == t[j - 1])
+            {
+                dp[j] = dp[j - 1];
+            }else
+            {
+                dp[j] = min(dp[j - 1] , min (dp[j] , leftup)) + 1;
+            }
+            leftup = temp;
+        }
+    }
+    return dp[m];
+}
+
 int main ()
 {
     vector<int> coins = {1, 2, 5};
-    vector<vector<int>> res = coinChangeIIDFS(coins, 11);
+    cout << coinChangeIIDPComp(coins, 5) << endl;
+    string s = "pack";
+    string t = "bag";
+    cout << editDistanceDPComp(s, t) << endl;
     return 0;
 }
