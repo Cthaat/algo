@@ -2721,9 +2721,9 @@ int editDistanceDPComp (string s, string t)
             if (s[i - 1] == t[j - 1])
             {
                 dp[j] = dp[j - 1];
-            }else
+            } else
             {
-                dp[j] = min(dp[j - 1] , min (dp[j] , leftup)) + 1;
+                dp[j] = min(dp[j - 1], min(dp[j], leftup)) + 1;
             }
             leftup = temp;
         }
@@ -2731,12 +2731,66 @@ int editDistanceDPComp (string s, string t)
     return dp[m];
 }
 
+int coinChangeGreedy (vector<int> &coins, int amt)
+{
+    int i = coins.size() - 1;
+    int count = 0;
+    while (amt > 0)
+    {
+        while (i > 0 && coins[i] > amt)
+        {
+            i--;
+        }
+        amt -= coins[i];
+        count++;
+    }
+    return amt == 0 ? count : -1;
+}
+
+class Item
+{
+public:
+    int w;
+    int v;
+
+    Item (int w, int v) : w(w), v(v)
+    {
+    }
+};
+
+bool com (Item &a, Item &b)
+{
+    return (double) a.v / a.w > (double) b.v / b.w;
+}
+
+double fractionalKnapsack (vector<int> &wgt, vector<int> &val, int cap)
+{
+    vector<Item> items;
+    for (int i = 0; i < wgt.size(); ++i)
+    {
+        items.push_back(Item(wgt[i], val[i]));
+    }
+    std::sort(items.begin(), items.end(), com);
+    double res = 0;
+    for (auto &it: items)
+    {
+        if (it.w <= cap)
+        {
+            res += it.v;
+            cap -= it.w;
+        } else
+        {
+            res += it.v * (double) cap / (double) it.w;
+            break;
+        }
+    }
+    return res;
+}
+
 int main ()
 {
-    vector<int> coins = {1, 2, 5};
-    cout << coinChangeIIDPComp(coins, 5) << endl;
-    string s = "pack";
-    string t = "bag";
-    cout << editDistanceDPComp(s, t) << endl;
+    vector<int> wgt = {10, 20, 30, 40, 50};
+    vector<int> val = {50, 120, 150, 210, 240};
+    cout << fractionalKnapsack(wgt, val, 100) << endl;
     return 0;
 }
