@@ -2787,10 +2787,121 @@ double fractionalKnapsack (vector<int> &wgt, vector<int> &val, int cap)
     return res;
 }
 
+vector<string> getPos (string s)
+{
+    vector<string> pos;
+    if (s[0] != '0' || s == "0")
+    {
+        pos.push_back(s);
+    }
+    for (int i = 1; i < s.size(); i++)
+    {
+        if (s.back() == '0' || (i != 1 && s[0] == '0'))
+        {
+            continue;
+        }
+        pos.push_back(s.substr(0, i) + "." + s.substr(i));
+    }
+    return pos;
+}
+
+vector<string> ambiguousCoordinates (string s)
+{
+    int n = s.size() - 2;
+    vector<string> res;
+    s = s.substr(1, n);
+    for (int i = 1; i < n; ++i)
+    {
+        vector<string> lt = getPos(s.substr(0, i));
+        vector<string> rt = getPos(s.substr(i));
+        for (auto &i: lt)
+        {
+            for (auto &j: rt)
+            {
+                res.push_back("(" + i + ", " + j + ")");
+            }
+        }
+    }
+
+    return res;
+}
+
+bool isKConsecutive (int k, int n)
+{
+    if (k % 2)
+    {
+        return !(n % k);
+    } else
+    {
+        return !((2 * n) % k) && (n % k);
+    }
+}
+
+int consecutiveNumbersSum (int n)
+{
+    int res = 0;
+    int bound = 2 * n;
+    for (int i = 1; i * (i + 1) <= bound; ++i)
+    {
+        if (isKConsecutive(i, n))
+        {
+            res++;
+        }
+    }
+    return res;
+}
+
+int longestMountain (vector<int> &arr)
+{
+    int most = 1;
+    int now = 1;
+    bool up = false;
+    bool down = true;
+    bool flag1 = false;
+    bool flag2 = false;
+    for (int i = 0; i < arr.size() - 1; i++)
+    {
+        if (arr[i] < arr[i + 1] && up == false && down == true)
+        {
+            most = most > now ? most : now;
+            now = 1;
+            up = true;
+            down = false;
+            flag1 = true;
+        }
+        if (arr[i] == arr[i + 1] && up == true && down == false)
+        {
+            up = false;
+            down = true;
+            now = 1;
+        }
+        if (arr[i] >= arr[i + 1] && up == true && down == false)
+        {
+            up = false;
+            down = true;
+            flag2 = true;
+        }
+        if (arr[i] < arr[i + 1] && up == true && down == false)
+        {
+            now++;
+        }
+        if (arr[i] > arr[i + 1] && up == false && down == true)
+        {
+            now++;
+        }
+    }
+    if (up == false && down == true)
+    {
+        most = most > now ? most : now;
+    }
+    return (most >= 3 && flag1 == true && flag2 == true) ? most : 0;
+}
+
 int main ()
 {
-    vector<int> wgt = {10, 20, 30, 40, 50};
-    vector<int> val = {50, 120, 150, 210, 240};
-    cout << fractionalKnapsack(wgt, val, 100) << endl;
+    vector<int> arr = {0, 2, 0, 2, 1, 2, 3, 4, 4, 1};
+    vector<int> arr1 = {0, 0, 1, 0, 0, 1, 1, 1, 1, 1};
+    cout << longestMountain(arr) << endl;
+    cout << longestMountain(arr1) << endl;
     return 0;
 }
