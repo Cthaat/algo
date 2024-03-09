@@ -2897,11 +2897,92 @@ int longestMountain (vector<int> &arr)
     return (most >= 3 && flag1 == true && flag2 == true) ? most : 0;
 }
 
+void dfs (vector<long long> &nums, vector<bool> &se, vector<long long> &selceted, long long sz,
+          vector<vector<long long >> &res)
+{
+    if (selceted.size() == sz)
+    {
+        if (selceted[0] != 0)
+        {
+            res.push_back(selceted);
+        }
+        return;
+    }
+    unordered_set<long long> duplicated;
+    for (long long i = 0; i < sz; ++i)
+    {
+        if ((!se[i] && duplicated.find(nums[i]) == duplicated.end()))
+        {
+            if (selceted.size() == sz - 1 && nums[i] % 2)
+            {
+                continue;
+            }
+            selceted.push_back(nums[i]);
+            se[i] = true;
+            duplicated.emplace(nums[i]);
+            dfs(nums, se, selceted, sz, res);
+            se[i] = false;
+            selceted.pop_back();
+        }
+    }
+}
+
+vector<vector<long long >> fin (vector<long long> &nums)
+{
+    vector<bool> se(nums.size() + 1, false);
+    vector<long long> selceted;
+    vector<vector<long long >> res;
+    dfs(nums, se, selceted, nums.size(), res);
+    return res;
+}
+
+bool isOK (long long n)
+{ return n > 0 && !((1 << 30) % n); }
+
+bool reorderedPowerOf2 (long long n)
+{
+    if (n == 1)
+    {
+        return true;
+    }
+    vector<long long> pos(10, 0);
+    while (n)
+    {
+        pos[n % 10]++;
+        n /= 10;
+    }
+    vector<long long> nums;
+    for (long long i = 0; i < pos.size(); ++i)
+    {
+        for (long long j = 0; j < pos[i]; ++j)
+        {
+            nums.push_back(i);
+        }
+    }
+    vector<vector<long long >> res = fin(nums);
+    for (auto &i: res)
+    {
+        long long sum = 0;
+        long long s = 1;
+        if (i[i.size() - 1] % 2)
+        {
+            continue;
+        }
+        for (long long j = i.size() - 1; j >= 0; --j)
+        {
+            sum += i[j] * s;
+            s *= 10;
+        }
+        if (isOK(sum))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 int main ()
 {
-    vector<int> arr = {0, 2, 0, 2, 1, 2, 3, 4, 4, 1};
-    vector<int> arr1 = {0, 0, 1, 0, 0, 1, 1, 1, 1, 1};
-    cout << longestMountain(arr) << endl;
-    cout << longestMountain(arr1) << endl;
+    bool n = reorderedPowerOf2(268341);
     return 0;
 }
