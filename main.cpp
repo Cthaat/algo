@@ -2981,8 +2981,69 @@ bool reorderedPowerOf2 (long long n)
     return false;
 }
 
+void dfs (vector<int> &nums, vector<int> &selected, set<vector<int>> &res,
+          vector<bool> &se)
+{
+    if (selected.size() == 3)
+    {
+        if (!(selected[0] + selected[1] + selected[2]))
+        {
+            sort(selected.begin(), selected.end());
+            res.insert(selected);
+        }
+        return;
+    }
+    unordered_set<int> dip;
+    for (int i = 0; i < nums.size(); i++)
+    {
+        if (se[i] && dip.find(nums[i]) == dip.end())
+        {
+            se[i] = false;
+            dip.emplace(nums[i]);
+            selected.push_back(nums[i]);
+            dfs(nums, selected, res, se);
+            se[i] = true;
+            selected.pop_back();
+        }
+    }
+}
+
+set<vector<int>> threeSum (vector<int> &nums)
+{
+    vector<int> selected;
+    set<vector<int>> res1;
+    vector<bool> se(nums.size() + 1, true);
+    dfs(nums, selected, res1, se);
+    set<vector<int>> res(res1.begin(), res1.end());
+    return res;
+}
+
+void sortColors(vector<int>& nums) {
+    int count1 = 1;
+    vector<int>::iterator begin = nums.begin();
+    vector<int>::iterator end = nums.end();
+    for (auto& i : nums) {
+        if (i == 0) {
+            *begin = 0;
+            begin++;
+        }
+        if (i == 1) {
+            count1++;
+        }
+        if (i == 2) {
+            end--;
+            *end = 2;
+        }
+    }
+    while (count1--) {
+        begin++;
+        *begin = 1;
+    }
+}
+
 int main ()
 {
-    bool n = reorderedPowerOf2(268341);
+    vector<int> nums = {2,0,1};
+    sortColors(nums);
     return 0;
 }

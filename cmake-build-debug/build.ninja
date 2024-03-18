@@ -41,37 +41,37 @@ include CMakeFiles/rules.ninja
 
 cmake_ninja_workdir = C$:/Code/algo/cmake-build-debug/
 # =============================================================================
-# Object build statements for EXECUTABLE target algo
+# Object build statements for EXECUTABLE target algo.cpp
 
 
 #############################################
-# Order-only phony target for algo
+# Order-only phony target for algo.cpp
 
-build cmake_object_order_depends_target_algo: phony || CMakeFiles/algo.dir
+build cmake_object_order_depends_target_algo.cpp: phony || CMakeFiles/algo.cpp.dir
 
-build CMakeFiles/algo.dir/main.cpp.obj: CXX_COMPILER__algo_unscanned_Debug C$:/Code/algo/main.cpp || cmake_object_order_depends_target_algo
-  DEP_FILE = CMakeFiles\algo.dir\main.cpp.obj.d
+build CMakeFiles/algo.cpp.dir/algo.cpp.obj: CXX_COMPILER__algo.2ecpp_unscanned_Debug C$:/Code/algo/cmake-build-debug/algo.cpp || cmake_object_order_depends_target_algo.cpp
+  DEP_FILE = CMakeFiles\algo.cpp.dir\algo.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always
-  OBJECT_DIR = CMakeFiles\algo.dir
-  OBJECT_FILE_DIR = CMakeFiles\algo.dir
+  OBJECT_DIR = CMakeFiles\algo.cpp.dir
+  OBJECT_FILE_DIR = CMakeFiles\algo.cpp.dir
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target algo
+# Link build statements for EXECUTABLE target algo.cpp
 
 
 #############################################
-# Link the executable algo.exe
+# Link the executable algo.cpp.exe
 
-build algo.exe: CXX_EXECUTABLE_LINKER__algo_Debug CMakeFiles/algo.dir/main.cpp.obj
+build algo.cpp.exe: CXX_EXECUTABLE_LINKER__algo.2ecpp_Debug CMakeFiles/algo.cpp.dir/algo.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  OBJECT_DIR = CMakeFiles\algo.dir
+  OBJECT_DIR = CMakeFiles\algo.cpp.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_FILE = algo.exe
-  TARGET_IMPLIB = libalgo.dll.a
-  TARGET_PDB = algo.exe.dbg
+  TARGET_FILE = algo.cpp.exe
+  TARGET_IMPLIB = libalgo.cpp.dll.a
+  TARGET_PDB = algo.cpp.exe.dbg
 
 
 #############################################
@@ -99,7 +99,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
-build algo: phony algo.exe
+build algo.cpp: phony algo.cpp.exe
 
 # =============================================================================
 # Folder targets.
@@ -109,7 +109,7 @@ build algo: phony algo.exe
 #############################################
 # Folder: C:/Code/algo/cmake-build-debug
 
-build all: phony algo.exe
+build all: phony algo.cpp.exe
 
 # =============================================================================
 # Built-in targets
