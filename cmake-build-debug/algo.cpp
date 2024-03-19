@@ -195,10 +195,81 @@ string addBinary (string a, string b)
     return ans;
 }
 
+string longestPalindrome (string s)
+{
+    int n = s.size();
+    if (n < 2)
+    {
+        return s;
+    }
+    int maxLenth = 1;
+    int begin = 0;
+    vector<vector<bool>> dp(n, vector<bool>(n));
+    for (int i = 0; i < n; i++)
+    {
+        dp[i][i] = true;
+    }
+    for (int L = 2; L <= n; L++)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            int j = L + i - 1;
+            if (j >= n)
+            {
+                break;
+            }
+            if (s[i] != s[j])
+            {
+                dp[i][j] = false;
+            } else
+            {
+                if (j - i < 3)
+                {
+                    dp[i][j] = true;
+                } else
+                {
+                    dp[i][j] = dp[i + 1][j - 1];
+                }
+            }
+            if (dp[i][j] && j - i + 1 > maxLenth)
+            {
+                maxLenth = j - i + 1;
+                begin = i;
+            }
+        }
+    }
+    return s.substr(begin, maxLenth);
+}
+
+pair<int, int> exture (const string &s, int L, int R)
+{
+    while (L >= 0 && R < s.size() && s[L] == s[R])
+    {
+        L--;
+        R++;
+    }
+    return {L + 1, R - 1};
+}
+
+string longestPalindrome2 (string s)
+{
+    int begin = 0;
+    int end = 0;
+    for (int i = 0; i < s.size(); i++)
+    {
+        auto [L1, R1] = exture(s, i, i);
+        auto [L2, R2] = exture(s, i, i + 1);
+        if (end - begin < max(R1 - L1, R2 - L2))
+        {
+            (R1 - L1) > (R2 - L2) ? (end = R1, begin = L1)
+                                  : (end = R2, begin = L2);
+        }
+    }
+    return s.substr(begin, end - begin + 1);
+}
+
 int main ()
 {
-    string a = "11";
-    string b = "1001";
-    string ans = addBinary(a, b);
+    longestPalindrome2("babad");
     return 0;
 }
