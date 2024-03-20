@@ -332,30 +332,37 @@ void dfs (vector<string> &res, string &ans, int &n, int &L, int &R)
     }
 }
 
-class Solution3 {
+class Solution3
+{
 public:
-    int maximumANDSum(vector<int>& nums, int numSlots) {
+    int maximumANDSum (vector<int> &nums, int numSlots)
+    {
         int n = numSlots << 1, ans = 0;
         nums.resize(n, 0);
-        auto check = [&]{
+        auto check = [&]
+        {
             int sum = 0, cnt[n];
             memset(cnt, 0, sizeof(cnt));
-            for(int x: nums) {
+            for (int x: nums)
+            {
                 int i = 0;
-                for(int j = 1; j <= numSlots; ++j){
-                    if(cnt[j] < 2 && (x & j) > (x & i)) i = j;
+                for (int j = 1; j <= numSlots; ++j)
+                {
+                    if (cnt[j] < 2 && (x & j) > (x & i)) i = j;
                 }
                 sum += x & i;
                 cnt[i]++;
             }
             return sum;
         };
-        auto RD = [&]{
+        auto RD = [&]
+        {
             shuffle(begin(nums), end(nums), std::mt19937(std::random_device()()));
             int ret = check();
             return ret;
         };
-        for(int i = 0; i < 10000; ++i){
+        for (int i = 0; i < 10000; ++i)
+        {
             ans = max(ans, RD());
         }
         return ans;
@@ -420,13 +427,30 @@ public:
     }
 };
 
+int longestValidParentheses (string s)
+{
+    int maxLenth = 0;
+    int n = s.length();
+    vector<int> dp(n, 0);
+    for (int i = 1; i < n; i++)
+    {
+        if (s[i] == ')')
+        {
+            if (s[i - 1] == '(')
+            {
+                dp[i] = i > 2 ? dp[i - 2] + 2 : 2;
+            } else if (i - dp[i - 1] - 1 >= 0 && s[i - dp[i - 1] - 1] == '(')
+            {
+                dp[i] = (i - dp[i - 1] - 1 == 0)?dp[i - 1] + 2 : dp[i - 1] + dp[i - dp[i - 1] - 2] + 2;
+            }
+        }
+        maxLenth = max(maxLenth, dp[i]);
+    }
+    return maxLenth;
+}
+
 int main ()
 {
-    vector<int> nums = {14,7,9,8,2,4,11,1,9};
-    int numSlots = 8;
-    Solution1 slu = Solution1();
-    Solution3 slu2 = Solution3();
-    slu2.maximumANDSum(nums , numSlots);
-    slu.maximumANDSum(nums , numSlots);
+    longestValidParentheses("()(())");
     return 0;
 }
