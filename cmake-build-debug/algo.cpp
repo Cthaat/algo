@@ -451,6 +451,5 @@ int longestValidParentheses (string s)
 
 int main ()
 {
-    longestValidParentheses("()(())");
     return 0;
 }
