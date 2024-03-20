@@ -1,6 +1,6 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
+#include <bits/stdc++.h>
+
+#include <random>
 
 using namespace std;
 
@@ -268,8 +268,165 @@ string longestPalindrome2 (string s)
     return s.substr(begin, end - begin + 1);
 }
 
+bool isMatch (string s, string p)
+{
+    int m = s.size();
+    int n = p.size();
+    auto match = [&] (int i, int j)
+    {
+        if (i == 0)
+        {
+            return false;
+        }
+        if (p[j - 1] == '.')
+        {
+            return true;
+        }
+        return s[i - 1] == p[j - 1];
+    };
+    vector<vector<int>> dp(n + 1, vector<int>(m + 1));
+    dp[0][0] = true;
+    for (int i = 0; i <= m; i++)
+    {
+        for (int j = 1; j <= n; j++)
+        {
+            if (p[j - 1] == '*')
+            {
+                dp[i][j] |= dp[i][j - 2];
+                if (match(i, j - 1))
+                {
+                    dp[i][j] |= dp[i - 1][j];
+                }
+            } else
+            {
+                if (match(i, j))
+                {
+                    dp[i][j] = dp[i - 1][j - 1];
+                }
+            }
+        }
+    }
+    return dp[n][m];
+}
+
+void dfs (vector<string> &res, string &ans, int &n, int &L, int &R)
+{
+    if (ans.size() == n * 2)
+    {
+        res.push_back(ans);
+        return;
+    }
+    if (L != n)
+    {
+        L++;
+        dfs(res, ans += '(', n, L, R);
+        ans.back() == '(' ? L-- : R--;
+        ans.pop_back();
+    }
+    if (R != n && R < L)
+    {
+        R++;
+        dfs(res, ans += ')', n, L, R);
+        ans.back() == '(' ? L-- : R--;
+        ans.pop_back();
+    }
+}
+
+class Solution3 {
+public:
+    int maximumANDSum(vector<int>& nums, int numSlots) {
+        int n = numSlots << 1, ans = 0;
+        nums.resize(n, 0);
+        auto check = [&]{
+            int sum = 0, cnt[n];
+            memset(cnt, 0, sizeof(cnt));
+            for(int x: nums) {
+                int i = 0;
+                for(int j = 1; j <= numSlots; ++j){
+                    if(cnt[j] < 2 && (x & j) > (x & i)) i = j;
+                }
+                sum += x & i;
+                cnt[i]++;
+            }
+            return sum;
+        };
+        auto RD = [&]{
+            shuffle(begin(nums), end(nums), std::mt19937(std::random_device()()));
+            int ret = check();
+            return ret;
+        };
+        for(int i = 0; i < 10000; ++i){
+            ans = max(ans, RD());
+        }
+        return ans;
+    }
+};
+
+const double epx = 1e-20;
+const double delta = 0.999;
+
+class Solution1
+{
+public:
+    vector<int> a;
+    int ans = INT_MIN;
+    int num = 0;
+
+    int fun ()
+    {
+        int res = 0;
+        for (int i = 0; i < a.size(); i++)
+        {
+            res += a[i] & ((i / 2) + 1);
+        }
+        ans = max(res, ans);
+        return res;
+    }
+
+    int sa ()
+    {
+        shuffle(a.begin(), a.end(), std::mt19937(std::random_device()()));
+        int n = a.size();
+        for (double t = 1e6; t > epx; t *= delta)
+        {
+            int x = rand() % n;
+            int y = rand() % n;
+            int last = fun();
+            swap(a[x], a[y]);
+            int now = fun();
+            int de = now - last;
+            if (de > 0)
+            {
+
+            } else if (!(exp(-1.0 * de / t) * RAND_MAX > rand()))
+            {
+                swap(a[x], a[y]);
+            }
+        }
+        return ans;
+    }
+
+    int maximumANDSum (vector<int> &nums, int numSlots)
+    {
+        for (int i = 0; i < numSlots * 2; i++)
+        {
+            a.push_back(0);
+        }
+        for (int i = 0; i < nums.size(); i++)
+        {
+            a[i] = nums[i];
+        }
+        return sa();
+    }
+};
+
 int main ()
 {
-    longestPalindrome2("babad");
+    vector<int> nums = {14,7,9,8,2,4,11,1,9};
+    int numSlots = 8;
+    Solution1 slu = Solution1();
+    Solution3 slu2 = Solution3();
+    slu2.maximumANDSum(nums , numSlots);
+    slu.maximumANDSum(nums , numSlots);
     return 0;
 }
